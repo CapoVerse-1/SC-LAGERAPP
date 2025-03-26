@@ -41,9 +41,16 @@ export async function createBrand(brandData: CreateBrandData): Promise<Brand> {
       throw new Error('Authentication required');
     }
 
-    // Add created_by if not provided
+    // Debugging
+    console.log('Creating brand with data:', brandData);
+    console.log('User session:', sessionData.session);
+    
+    // Add created_by if not provided (using employee ID from database, not user ID)
+    // This assumes you have a system to map auth users to employee records
     if (!brandData.created_by) {
-      brandData.created_by = sessionData.session.user.id;
+      // For now, we'll use null to let the database handle it
+      // We've likely been using auth user ID incorrectly where employee ID should be used
+      brandData.created_by = null;
     }
 
     const { data, error } = await supabase
@@ -57,6 +64,7 @@ export async function createBrand(brandData: CreateBrandData): Promise<Brand> {
       throw new Error(error.message);
     }
 
+    console.log('Brand created successfully:', data);
     return data;
   } catch (error) {
     console.error('Error in createBrand:', error);
