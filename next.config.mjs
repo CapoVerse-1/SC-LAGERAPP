@@ -2,8 +2,7 @@
 const nextConfig = {
   // Core configurations
   reactStrictMode: false,
-  swcMinify: true,
-
+  
   // Disable certain checks during build
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,14 +14,6 @@ const nextConfig = {
   // Image optimization
   images: {
     unoptimized: true,
-  },
-
-  // Turbo optimizations
-  turbo: {
-    enabled: true,
-    fastRefresh: true,
-    persistent: true,
-    memoryLimit: 4096,
   },
 
   // Experimental features (keeping only essential ones)
