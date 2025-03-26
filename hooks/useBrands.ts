@@ -28,25 +28,16 @@ export function useBrands() {
   const loadBrands = useCallback(async () => {
     try {
       setLoading(true);
-      console.log('Fetching brands from Supabase...');
       const brandsData = await fetchBrands();
-      console.log('Brands fetched successfully:', brandsData);
       
       // Get item counts for each brand
-      console.log('Fetching item counts for brands...');
       const brandsWithCounts = await Promise.all(
         brandsData.map(async (brand) => {
-          try {
-            const count = await countBrandItems(brand.id);
-            return { ...brand, itemCount: count };
-          } catch (error) {
-            console.error(`Error fetching count for brand ${brand.id}:`, error);
-            return { ...brand, itemCount: 0 };
-          }
+          const count = await countBrandItems(brand.id);
+          return { ...brand, itemCount: count };
         })
       );
       
-      console.log('Brands with counts prepared:', brandsWithCounts);
       setBrands(brandsWithCounts);
       setError(null);
     } catch (err) {
