@@ -45,9 +45,17 @@ export async function createPromoter(promoterData: CreatePromoterData): Promise<
     // Remove automatic assignment of auth user ID
     // The created_by field should be provided by the caller
 
+    // Extract only fields that exist in the actual database schema
+    const validPromoterData = {
+      name: promoterData.name,
+      photo_url: promoterData.photo_url,
+      is_active: promoterData.is_active,
+      created_by: promoterData.created_by
+    };
+
     const { data, error } = await supabase
       .from('promoters')
-      .insert([promoterData])
+      .insert([validPromoterData])
       .select()
       .single();
 

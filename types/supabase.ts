@@ -192,37 +192,40 @@ export interface Database {
           id: string
           name: string
           photo_url: string | null
-          address: string | null
-          clothing_size: string | null
-          phone_number: string | null
-          notes: string | null
           is_active: boolean
           created_at: string
           created_by: string | null
+          // Frontend-only fields (not in actual database schema)
+          address?: string | null
+          clothing_size?: string | null
+          phone_number?: string | null
+          notes?: string | null
         }
         Insert: {
           id?: string
           name: string
           photo_url?: string | null
+          is_active?: boolean
+          created_at?: string
+          created_by?: string | null
+          // These fields are ignored when inserting to database
           address?: string | null
           clothing_size?: string | null
           phone_number?: string | null
           notes?: string | null
-          is_active?: boolean
-          created_at?: string
-          created_by?: string | null
         }
         Update: {
           id?: string
           name?: string
           photo_url?: string | null
+          is_active?: boolean
+          created_at?: string
+          created_by?: string | null
+          // These fields are ignored when updating the database
           address?: string | null
           clothing_size?: string | null
           phone_number?: string | null
           notes?: string | null
-          is_active?: boolean
-          created_at?: string
-          created_by?: string | null
         }
         Relationships: [
           {

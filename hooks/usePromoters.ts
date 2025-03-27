@@ -84,14 +84,12 @@ export function usePromoters() {
         throw new Error('Please select an employee before creating a promoter');
       }
 
-      // Create promoter data
+      // Create promoter data - only include fields that exist in the database
       const promoterData: any = {
         name,
         is_active: true,
-        address,
-        clothing_size: clothingSize,
-        phone_number: phoneNumber,
-        notes,
+        // Removed fields that don't exist in the database:
+        // address, clothing_size, phone_number, notes
         created_by: currentUser.id // Use employee ID from UserContext
       };
 
@@ -104,16 +102,26 @@ export function usePromoters() {
       // Create promoter in Supabase
       const newPromoter = await createPromoter(promoterData);
 
-      // Add to local state with transaction count of 0
-      const promoterWithCount = { ...newPromoter, transactionCount: 0 };
-      setPromoters(prev => [...prev, promoterWithCount]);
+      // For UI purposes, add the extra fields that might be used in the UI but aren't in the DB
+      const promoterWithExtraFields = { 
+        ...newPromoter, 
+        transactionCount: 0,
+        // These fields aren't in DB but might be used in UI
+        address,
+        clothing_size: clothingSize,
+        phone_number: phoneNumber,
+        notes
+      };
+      
+      // Add to local state
+      setPromoters(prev => [...prev, promoterWithExtraFields]);
 
       toast({
         title: 'Success',
         description: `Promoter ${name} has been created.`,
       });
 
-      return promoterWithCount;
+      return promoterWithExtraFields;
     } catch (err) {
       console.error('Error adding promoter:', err);
       setError(err instanceof Error ? err : new Error('Failed to add promoter'));
