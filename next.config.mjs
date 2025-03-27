@@ -16,11 +16,12 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  // Experimental features (keeping only essential ones)
+  // Experimental features - removing potentially problematic ones
   experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    // These features may cause issues with Vercel deployment
+    // webpackBuildWorker: true,
+    // parallelServerBuildTraces: true,
+    // parallelServerCompiles: true,
   },
 }
 
