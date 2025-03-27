@@ -82,10 +82,8 @@ export async function createItem(itemData: CreateItemData): Promise<Item> {
       throw new Error('Authentication required');
     }
 
-    // Add created_by if not provided
-    if (!itemData.created_by) {
-      itemData.created_by = sessionData.session.user.id;
-    }
+    // Remove automatic assignment of auth user ID
+    // The created_by field should be provided by the caller
 
     const { data, error } = await supabase
       .from('items')
@@ -614,4 +612,4 @@ export async function getSharedItemsForBrand(brandId: string): Promise<Item[]> {
     console.error('Error in getSharedItemsForBrand:', error);
     throw error;
   }
-} 
+}

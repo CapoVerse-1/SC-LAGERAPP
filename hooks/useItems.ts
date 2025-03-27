@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '../contexts/UserContext';
 import { 
   fetchItems, 
   createItem, 
@@ -33,6 +34,7 @@ export function useItems(brandId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { toast } = useToast();
+  const { currentUser } = useUser();
 
   // Load items from Supabase
   const loadItems = useCallback(async () => {
@@ -111,6 +113,11 @@ export function useItems(brandId: string) {
     sizes?: Array<{ size: string, quantity: number }>
   ): Promise<ItemWithSizeCount> => {
     try {
+      // Check if an employee is selected
+      if (!currentUser) {
+        throw new Error('Please select an employee before creating an item');
+      }
+
       // Create item data
       const itemData: any = {
         name,
@@ -118,7 +125,8 @@ export function useItems(brandId: string) {
         brand_id: brandId,
         is_active: true,
         is_shared: isShared,
-        original_quantity: originalQuantity
+        original_quantity: originalQuantity,
+        created_by: currentUser.id // Use employee ID from UserContext
       };
       
       // Upload image to Supabase Storage if provided
@@ -695,4 +703,4 @@ export function useItems(brandId: string) {
     fetchSizes,
     refreshItems
   };
-} 
+}

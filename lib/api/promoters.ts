@@ -42,10 +42,8 @@ export async function createPromoter(promoterData: CreatePromoterData): Promise<
       throw new Error('Authentication required');
     }
 
-    // Add created_by if not provided
-    if (!promoterData.created_by) {
-      promoterData.created_by = sessionData.session.user.id;
-    }
+    // Remove automatic assignment of auth user ID
+    // The created_by field should be provided by the caller
 
     const { data, error } = await supabase
       .from('promoters')

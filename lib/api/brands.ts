@@ -1,97 +1,9 @@
 import { supabase } from '../supabase';
 import { Database } from '@/types/supabase';
-import { debugLog } from '../utils';
 
 export type Brand = Database['public']['Tables']['brands']['Row'];
 export type CreateBrandData = Database['public']['Tables']['brands']['Insert'];
 export type UpdateBrandData = Database['public']['Tables']['brands']['Update'];
-
-/**
- * Test Supabase connection and permissions
- * @returns Promise with test results
- */
-export async function testSupabaseConnection() {
-  try {
-    debugLog('testSupabaseConnection: Starting test');
-    
-    // Check authentication
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    
-    const testResults = {
-      authenticated: !!sessionData.session,
-      sessionError: sessionError?.message,
-      readPermission: false,
-      writePermission: false,
-      readError: null as string | null,
-      writeError: null as string | null,
-    };
-    
-    debugLog('testSupabaseConnection: Auth check', { 
-      authenticated: testResults.authenticated,
-      sessionError: sessionError 
-    });
-    
-    // Test read permission
-    try {
-      const { data: readData, error: readError } = await supabase
-        .from('brands')
-        .select('*')
-        .limit(1);
-      
-      testResults.readPermission = !readError;
-      testResults.readError = readError?.message ?? null;
-      
-      debugLog('testSupabaseConnection: Read test', { 
-        success: !readError, 
-        error: readError,
-        data: readData 
-      });
-    } catch (error: any) {
-      testResults.readError = error.message;
-      debugLog('testSupabaseConnection: Read test exception', { error });
-    }
-    
-    // Only test write if authenticated
-    if (testResults.authenticated) {
-      try {
-        const testBrand = {
-          name: `Test Brand ${Date.now()}`,
-          created_by: sessionData.session?.user.id,
-        };
-        
-        const { data: writeData, error: writeError } = await supabase
-          .from('brands')
-          .insert([testBrand])
-          .select()
-          .single();
-        
-        testResults.writePermission = !writeError;
-        testResults.writeError = writeError?.message ?? null;
-        
-        debugLog('testSupabaseConnection: Write test', { 
-          success: !writeError, 
-          error: writeError,
-          data: writeData 
-        });
-        
-        // Clean up test data
-        if (writeData?.id) {
-          await supabase.from('brands').delete().eq('id', writeData.id);
-        }
-      } catch (error: any) {
-        testResults.writeError = error.message;
-        debugLog('testSupabaseConnection: Write test exception', { error });
-      }
-    }
-    
-    debugLog('testSupabaseConnection: Final results', testResults);
-    return testResults;
-  } catch (error) {
-    debugLog('testSupabaseConnection: Top-level exception', { error });
-    console.error('Error testing Supabase connection:', error);
-    throw error;
-  }
-}
 
 /**
  * Fetch all brands from the database
@@ -123,27 +35,15 @@ export async function fetchBrands(): Promise<Brand[]> {
  */
 export async function createBrand(brandData: CreateBrandData): Promise<Brand> {
   try {
-    debugLog('createBrand: Starting to create brand', brandData);
-    
     // Check if user is authenticated
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    
-    debugLog('createBrand: Session check result', { 
-      hasSession: !!sessionData.session,
-      sessionError: sessionError
-    });
-    
+    const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session) {
       throw new Error('Authentication required');
     }
 
-    // Add created_by if not provided
-    if (!brandData.created_by) {
-      brandData.created_by = sessionData.session.user.id;
-      debugLog('createBrand: Added created_by', { created_by: sessionData.session.user.id });
-    }
+    // Remove automatic assignment of auth user ID
+    // The created_by field should be provided by the caller
 
-    debugLog('createBrand: About to insert brand into Supabase');
     const { data, error } = await supabase
       .from('brands')
       .insert([brandData])
@@ -151,15 +51,12 @@ export async function createBrand(brandData: CreateBrandData): Promise<Brand> {
       .single();
 
     if (error) {
-      debugLog('createBrand: Supabase error', { error });
       console.error('Error creating brand:', error);
       throw new Error(error.message);
     }
 
-    debugLog('createBrand: Successfully created brand', data);
     return data;
   } catch (error) {
-    debugLog('createBrand: Caught exception', { error });
     console.error('Error in createBrand:', error);
     throw error;
   }
@@ -268,4 +165,4 @@ export async function countBrandItems(brandId: string): Promise<number> {
     console.error('Error in countBrandItems:', error);
     throw error;
   }
-} 
+}

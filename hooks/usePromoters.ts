@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from '@/components/ui/use-toast';
+import { useUser } from '../contexts/UserContext';
 import {
   Promoter,
   fetchPromoters,
@@ -27,6 +28,7 @@ export function usePromoters() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [activeFilter, setActiveFilter] = useState<boolean | null>(true); // Default to showing active promoters
+  const { currentUser } = useUser();
 
   // Load promoters with transaction counts
   const loadPromoters = useCallback(async () => {
@@ -77,6 +79,11 @@ export function usePromoters() {
     notes: string | null = null
   ) => {
     try {
+      // Check if an employee is selected
+      if (!currentUser) {
+        throw new Error('Please select an employee before creating a promoter');
+      }
+
       // Create promoter data
       const promoterData: any = {
         name,
@@ -84,7 +91,8 @@ export function usePromoters() {
         address,
         clothing_size: clothingSize,
         phone_number: phoneNumber,
-        notes
+        notes,
+        created_by: currentUser.id // Use employee ID from UserContext
       };
 
       // Upload photo if provided

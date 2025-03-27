@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePinContext } from '../contexts/PinContext';
+import { useUser } from '../contexts/UserContext';
 import { 
   fetchBrands, 
   createBrand, 
@@ -23,6 +24,7 @@ export function useBrands() {
   const [error, setError] = useState<Error | null>(null);
   const { pinnedBrands, togglePin, isPinned } = usePinContext();
   const { toast } = useToast();
+  const { currentUser } = useUser();
 
   // Load brands from Supabase
   const loadBrands = useCallback(async () => {
@@ -89,11 +91,17 @@ export function useBrands() {
   // Add a new brand
   const addBrand = async (name: string, logoFile: File | null): Promise<BrandWithItemCount> => {
     try {
+      // Check if an employee is selected
+      if (!currentUser) {
+        throw new Error('Please select an employee before creating a brand');
+      }
+
       // Create brand data
       const brandData: any = {
         name,
         is_active: true,
         is_pinned: false,
+        created_by: currentUser.id // Use employee ID from UserContext
       };
       
       // Upload logo to Supabase Storage if provided
@@ -309,4 +317,4 @@ export function useBrands() {
     removeBrand,
     refreshBrands: loadBrands,
   };
-} 
+}

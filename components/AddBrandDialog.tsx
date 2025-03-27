@@ -38,7 +38,7 @@ export default function AddBrandDialog({ showDialog, setShowDialog }: AddBrandDi
       const newBrand = await addBrand(brandName, logoFile)
       console.log('New brand added:', newBrand)
       resetForm()
-      setShowDialog(true)
+      setShowDialog(false)
     } catch (error) {
       console.error('Error adding brand:', error)
       setShowDialog(false)
