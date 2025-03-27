@@ -5,6 +5,7 @@ import { UserProvider } from '@/contexts/UserContext';
 import { ThemeProvider } from 'next-themes';
 import EmployeeSelectionOverlay from './EmployeeSelectionOverlay';
 import ResetUserOnNavigation from './ResetUserOnNavigation';
+import StorageInitializer from './StorageInitializer';
 import { useState, useEffect } from 'react';
 import { PinProvider } from '@/contexts/PinContext';
 
@@ -23,6 +24,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <UserProvider>
           <PinProvider>
             <ResetUserOnNavigation />
+            {/* Initialize Supabase storage buckets */}
+            <StorageInitializer />
             {/* Only render children after client-side mounting to prevent hydration mismatch */}
             {mounted ? children : <div style={{ visibility: 'hidden' }}>{children}</div>}
             <EmployeeSelectionOverlay />
